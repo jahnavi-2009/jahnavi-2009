@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Define a structure for a node in the linked list
+struct Node {
+int data;
+struct Node* next;
+};
+
+// Function to merge two sorted linked lists
+struct Node* merge(struct Node* left, struct Node* right) {
+struct Node* result = NULL;
+
+// Base cases
+if (left == NULL)
+return right;
+if (right == NULL)
+return left;
+
+// Compare the data of the two nodes and merge them
+if (left->data <= right->data) {
+result = left;
+result->next = merge(left->next, right);
+} else {
+result = right;
+result->next = merge(left, right->next);
+}
+
+return result;
+}
+
+// Split the linked list into two halves
+void split(struct Node* source, struct Node** front, struct Node** back) {
+struct Node* slow = source;
+struct Node* fast = source->next;
+
+// Advance 'fast' two nodes and 'slow' one node
+while (fast != NULL) {
+fast = fast->next;
+if (fast != NULL) {
+slow = slow->next;
+fast = fast->next;
+}
+}
+
+// 'slow' is before the midpoint, so split the list into two at that point.
+*front = source;
+*back = slow->next;
+slow->next = NULL;
+}
+
+// MergeSort function for linked list
+void mergeSort(struct Node** headRef) {
+struct Node* head = *headRef;
+struct Node* left;
+struct Node* right;
+
+// Base case: If the list is empty or has only one element, return.
+if ((head == NULL) || (head->next == NULL)) {
+return;
+
+}
+
+// Split the linked list into two halves
+split(head, &left, &right);
+
+// Recursively sort both halves
+mergeSort(&left);
+mergeSort(&right);
+
+// Merge the sorted halves
+*headRef = merge(left, right);
+}
+
+// Function to insert a new node at the beginning of the linked list
+void push(struct Node** headRef, int newData) {
+struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+newNode->data = newData;
+newNode->next = *headRef;
+*headRef = newNode;
+}
+
+// Function to print the linked list
+void printList(struct Node* node) {
+while (node != NULL) {
+printf("%d ", node->data);
+node = node->next;
+}
+printf("\n");
+}
+
+int main() {
+struct Node* head = NULL;
+
+// Push elements onto the linked list
+push(&head, 12);
+push(&head, 11);
+push(&head, 13);
+push(&head, 5);
+push(&head, 6);
+push(&head, 7);
+
+printf("Original linked list: \n");
+printList(head);
+
+// Sort the linked list using MergeSort
+mergeSort(&head);
+
+printf("Sorted linked list: \n");
+printList(head);
+
+return 0;
+}
