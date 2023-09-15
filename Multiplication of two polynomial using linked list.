@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Term {
+int coefficient;
+int exponent;
+struct Term* next;
+} Term;
+
+Term* createTerm(int coef, int exp) {
+Term* term = (Term*)malloc(sizeof(Term));
+term->coefficient = coef;
+term->exponent = exp;
+term->next = NULL;
+return term;
+}
+
+void addToPolynomial(Term** poly, int coef, int exp) {
+Term* newTerm = createTerm(coef, exp);
+
+if (*poly == NULL) {
+*poly = newTerm;
+return;
+}
+
+Term* current = *poly;
+while (current->next != NULL) {
+current = current->next;
+}
+current->next = newTerm;
+}
+
+Term* multiplyPolynomials(Term* poly1, Term* poly2) {
+if (poly1 == NULL || poly2 == NULL) {
+return NULL;
+}
+
+Term* result = NULL;
+Term* temp = poly2;
+
+while (poly1 != NULL) {
+poly2 = temp;
+
+while (poly2 != NULL) {
+int newCoef = poly1->coefficient * poly2->coefficient;
+int newExp = poly1->exponent + poly2->exponent;
+
+Term* term = result;
+while (term != NULL && term->exponent > newExp) {
+term = term->next;
+}
+
+if (term == NULL || term->exponent < newExp) {
+addToPolynomial(&result, newCoef, newExp);
+} else if (term->exponent == newExp) {
+term->coefficient += newCoef;
+}
+
+poly2 = poly2->next;
+}
+
+poly1 = poly1->next;
+}
+
+return result;
+}
+
+void displayPolynomial(Term* poly) {
+if (poly == NULL) {
+printf("0\n");
+return;
+}
+
+while (poly != NULL) {
+printf("%dx^%d", poly->coefficient, poly->exponent);
+poly = poly->next;
+if (poly != NULL) {
+printf(" + ");
+}
+}
+printf("\n");
+}
+
+int main() {
+Term* poly1 = NULL;
+Term* poly2 = NULL;
+
+addToPolynomial(&poly1, 3, 2);
+addToPolynomial(&poly1, 5, 1);
+
+addToPolynomial(&poly1, 2, 0);
+
+addToPolynomial(&poly2, 2, 1);
+addToPolynomial(&poly2, -1, 0);
+
+printf("Polynomial 1: ");
+displayPolynomial(poly1);
+
+printf("Polynomial 2: ");
+displayPolynomial(poly2);
+
+Term* result = multiplyPolynomials(poly1, poly2);
+
+printf("Product of Polynomials: ");
+displayPolynomial(result);
+
+return 0;
+}
