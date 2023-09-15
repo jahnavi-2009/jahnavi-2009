@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+// Define the maximum size of the stack
+#define MAX_STACK_SIZE 100
+
+// Define a stack structure
+struct Stack {
+int top;
+int data[MAX_STACK_SIZE];
+
+};
+
+// Function to initialize an empty stack
+void initialize(struct Stack *stack) {
+stack->top = -1;
+}
+
+// Function to check if the stack is empty
+int isEmpty(struct Stack *stack) {
+return stack->top == -1;
+}
+
+// Function to push an element onto the stack
+void push(struct Stack *stack, int value) {
+if (stack->top == MAX_STACK_SIZE - 1) {
+printf("Stack Overflow\n");
+exit(1); // Exit the program in case of stack overflow
+}
+stack->data[++(stack->top)] = value;
+}
+
+// Function to pop an element from the stack
+int pop(struct Stack *stack) {
+if (isEmpty(stack)) {
+printf("Stack Underflow\n");
+exit(1); // Exit the program in case of stack underflow
+}
+return stack->data[(stack->top)--];
+
+}
+
+// Function to evaluate a postfix expression
+int evaluatePostfix(char postfix[]) {
+struct Stack stack;
+initialize(&stack);
+
+int i, operand1, operand2;
+
+for (i = 0; postfix[i] != '\0'; i++) {
+char ch = postfix[i];
+
+if (isdigit(ch)) {
+push(&stack, ch - '0'); // Convert character digit to integer and push onto stack
+} else {
+operand2 = pop(&stack);
+operand1 = pop(&stack);
+
+switch (ch) {
+case '+':
+push(&stack, operand1 + operand2);
+break;
+case '-':
+push(&stack, operand1 - operand2);
+break;
+case '*':
+push(&stack, operand1 * operand2);
+break;
+
+case '/':
+if (operand2 != 0) {
+push(&stack, operand1 / operand2);
+} else {
+printf("Division by zero\n");
+exit(1); // Exit the program for division by zero
+}
+break;
+default:
+printf("Invalid operator in postfix expression\n");
+exit(1); // Exit the program for invalid operator
+}
+}
+}
+
+if (!isEmpty(&stack)) {
+return pop(&stack);
+} else {
+printf("Postfix expression is empty\n");
+exit(1); // Exit the program for an empty postfix expression
+}
+}
+
+int main() {
+char postfix[MAX_STACK_SIZE];
+
+printf("Enter a postfix expression: ");
+gets(postfix); // Input postfix expression (without spaces)
+
+int result = evaluatePostfix(postfix);
+
+printf("Result: %d\n", result);
+
+return 0;
+}
